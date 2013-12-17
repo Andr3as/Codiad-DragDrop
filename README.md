@@ -1,11 +1,7 @@
-#Template
+#DragDrop
 
-!!Only beta!! - Creates hight latencies by huge files - Adds a minimap to get an overview
+Drag'n'Drop for Codiad filemanager
 
 ##Installation
 
 - Download the zip file and unzip it to your plugin folder.
-
-##Example
-
-![Example](http://andrano.de/Plugins/img/minimap.jpg "Example")
