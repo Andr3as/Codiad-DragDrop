@@ -40,7 +40,7 @@
 					out     : _this.out
 				});
 			};
-			amplify.subscribe('file-manager.onIndex', function(obj){
+			amplify.subscribe('filemanager.onIndex', function(obj){
 				setTimeout(fn, 250);
 				setTimeout(function(){
 					//Reopen closed files
@@ -50,7 +50,13 @@
 					instance.files = [];
 				}, 250);
 			});
-			amplify.subscribe('file-manager.onCreate', function(obj){
+			amplify.subscribe('filemanager.onCreate', function(obj){
+				setTimeout(fn, 250);
+			})
+			amplify.subscribe('filemanager.onPaste', function(obj){
+				setTimeout(fn, 250);
+			});
+			amplify.subscribe('filemanager.onUpload', function(obj){
 				setTimeout(fn, 250);
 			});
         },
