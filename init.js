@@ -52,7 +52,7 @@
 			});
 			amplify.subscribe('filemanager.onCreate', function(obj){
 				setTimeout(fn, 250);
-			})
+			});
 			amplify.subscribe('filemanager.onPaste', function(obj){
 				setTimeout(fn, 250);
 			});
