@@ -8,6 +8,6 @@ Drag'n'Drop for Codiad filemanager
 
 #New Features
 
-Drag files to insert or append content to current active file.
+Drag files to insert or append content to current active file. (Activate it in the settings)
 
 ![Screenshot](https://andrano.de/Plugins/img/dragdrop.png "Screenshot")
