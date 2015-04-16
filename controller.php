@@ -30,6 +30,16 @@
 			}
 			break;
 		
+		case 'getContent':
+            if (isset($_GET['path'])) {
+                $content = file_get_contents(getWorkspacePath($_GET['path']));
+                $result = array("status" => "success", "content" => $content);
+                echo json_encode($result);
+            } else {
+                echo '{"status":"error","message":"Missing Parameter"}';
+            }
+            break;
+		
 		default:
 			echo '{"status":"error","message":"No Type"}';
 			break;

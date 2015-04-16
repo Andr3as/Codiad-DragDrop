@@ -21,6 +21,7 @@
         
         path: curpath,
         files: [],
+        template: "",
 		
         init: function() {
 			var _this   = this;
@@ -30,6 +31,8 @@
 				$('#file-manager a:not(#project-root)').draggable({
 					opacity: 0.85,
 					revert: true,
+					start: _this.start,
+					stop: _this.stop,
 					zIndex: 100
 				});
 				//Drop
@@ -59,6 +62,54 @@
 			amplify.subscribe('filemanager.onUpload', function(obj){
 				setTimeout(fn, 250);
 			});
+			//File drop
+			var apply = function() {
+			    $('#file-manager').append(_this.template);
+                $('#drag_append').droppable({
+                    accept  : "#file-manager a.file",
+                    drop    : _this.appendDrop,
+                    over    : _this.over,
+                    out     : _this.out
+                });
+                $('#drag_insert').droppable({
+                    accept  : "#file-manager a.file",
+                    drop    : _this.insertDrop,
+                    over    : _this.over,
+                    out     : _this.out
+                });
+			};
+			$.get(this.path + 'template.html', function(html){
+                _this.template = html;
+                apply();
+			});
+			amplify.subscribe('filemanager.onIndex', function(obj){
+                if (obj.path == $('#project-root').attr('data-path')) {
+                    setTimeout(function(){
+                        apply();
+                    }, 100);
+                }
+			});
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Start dragging
+        //
+        //////////////////////////////////////////////////////////
+        start: function() {
+            if (codiad.editor.getActive() !== null && instance.__editEnabled()) {
+                $('#dragdrop').show();
+            }
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Stop dragging
+        //
+        //////////////////////////////////////////////////////////
+        stop: function() {
+            $('#dragdrop').hide();
+            $('#dragdrop .drop_over').removeClass('drop_over');
         },
 		
 		//////////////////////////////////////////////////////////
@@ -140,7 +191,6 @@
 				if (json.status == "success") {
 					element.context.parentElement.remove();
 					codiad.filemanager.rescan(codiad.project.getCurrent());
-					$('.drop_over').removeClass('drop_over');
 				}
 			});
         },
@@ -191,6 +241,80 @@
 			} else {
 				return false;
 			}
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Drop item to append it to current file
+        //
+        //  Parameters:
+        //
+        //  event - {Event} - Check for more details
+        //	ui - {Object} - http://api.jqueryui.com/droppable/
+        //
+        //////////////////////////////////////////////////////////
+        appendDrop: function(event, ui) {
+            var path = $(ui.draggable).attr('data-path');
+            instance.__edit(path, "append");
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Drop item to insert it
+        //
+        //  Parameters:
+        //
+        //  event - {Event} - Check for more details
+        //	ui - {Object} - http://api.jqueryui.com/droppable/
+        //
+        //////////////////////////////////////////////////////////
+        insertDrop: function(event, ui) {
+            var path = $(ui.draggable).attr('data-path');
+            instance.__edit(path, "insert");
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Load content of dropped file and insert it
+        //
+        //  Parameters:
+        //
+        //  path - {String} - Path of dropped file
+        //	type - {String} - Type of action: insert or append content
+        //
+        //////////////////////////////////////////////////////////
+        __edit: function(path, type) {
+            $.getJSON(instance.path + 'controller.php?action=getContent&path=' + path, function(result){
+                if (result.status == "success") {
+                    var active = codiad.editor.getActive();
+                    if (active === null) {
+                        codiad.message.error("No Open Files");
+                        return false;
+                    }
+                    if (type == "append") {
+                        active.navigateFileEnd();
+                    }
+                    active.insert(result.content);
+                    codiad.message.success("Content " + type + "ed");
+                } else {
+                    codiad.message.error(result.message);
+                }
+            });
+        },
+        
+        //////////////////////////////////////////////////////////
+        //
+        //  Wheater dragging to insert file content is enabled or not
+        //
+        //////////////////////////////////////////////////////////
+        __editEnabled: function() {
+            var setting = localStorage.getItem('codiad.plugin.drag.insert');
+            if (setting === null) {
+                return false;
+            } else if (setting === "true") {
+                return true;
+            }
+            return false;
         }
     };
 })(this, jQuery);
